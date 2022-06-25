@@ -31,16 +31,22 @@
         >
 
         <EditText
+            android:id="@+id/ET_incomeAmount"
             android:layout_width="350dp"
             android:layout_height="wrap_content"
             android:hint="Amount"
             />
-        <EditText
+
+        <Spinner
+            android:id="@+id/incomeCategorySpinner"
             android:layout_width="350dp"
-            android:layout_height="wrap_content"
-            android:hint="Category"
-            />
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:entries="@array/categoryList"
+            android:gravity="center" />
+
         <Button
+            android:id="@+id/BTN_addIncome"
             android:layout_width="180dp"
             android:layout_height="wrap_content"
             android:text="Add"

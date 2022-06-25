@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 
 public class Home_Fragment extends Fragment implements View.OnClickListener {
 
-    public CardView incomeCardView, expensessCardView;
+    private CardView incomeCardView, expensessCardView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -25,23 +25,28 @@ public class Home_Fragment extends Fragment implements View.OnClickListener {
         incomeCardView.setOnClickListener(this);
         expensessCardView.setOnClickListener(this);
 
+        incomeCardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getActivity(), IncomeActivity.class);
+                startActivity(i);
+            }
+        });
+
+        expensessCardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getActivity(), ExpenseActivity.class);
+                startActivity(i);
+            }
+        });
+
         return view;
     }
 
 
     @Override
     public void onClick(View v) {
-        Intent i;
-
-        switch (v.getId()) {
-            case R.id.CD_Income:
-                i = new Intent(getActivity(), IncomeActivity.class);
-                startActivity(i);
-
-            case R.id.CD_Expenses:
-                i = new Intent(getActivity(), ExpenseActivity.class);
-                startActivity(i);
-        }
 
     }
 }

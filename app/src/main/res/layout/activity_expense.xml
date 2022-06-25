@@ -32,16 +32,22 @@
         >
 
         <EditText
+            android:id="@+id/ET_expensesAmount"
             android:layout_width="350dp"
             android:layout_height="wrap_content"
             android:hint="Amount"
             />
-        <EditText
+
+        <Spinner
+            android:id="@+id/expenseCategorySpinner"
             android:layout_width="350dp"
-            android:layout_height="wrap_content"
-            android:hint="Category"
-            />
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:entries="@array/categoryList"
+            android:gravity="center" />
+
         <Button
+            android:id="@+id/BTN_addExpense"
             android:layout_width="180dp"
             android:layout_height="wrap_content"
             android:text="Add"

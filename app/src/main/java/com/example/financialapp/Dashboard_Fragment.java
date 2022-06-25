@@ -2,63 +2,133 @@ package com.example.financialapp;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link Dashboard_Fragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+
 public class Dashboard_Fragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private ProgressBar progressBarFood, progressBarUtility, progressBarHealthCare, progressBarOthers, progressBarExpense;
+    private TextView valueFood, valueUtility, valuesHealthCare, valueOthers, valueTotalexpense, valueTotalIncome;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public Dashboard_Fragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment Dashboard_Fragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static Dashboard_Fragment newInstance(String param1, String param2) {
-        Dashboard_Fragment fragment = new Dashboard_Fragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    private FirebaseAuth mAuth;
+    private DatabaseReference dbRef;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_dashboard_, container, false);
+
+        mAuth = FirebaseAuth.getInstance();
+        dbRef = FirebaseDatabase.getInstance().getReference().child("Cashdata").child(mAuth.getCurrentUser().getUid());
+
+
+        View view = inflater.inflate(R.layout.fragment_dashboard_, container, false);
+
+        progressBarFood = view.findViewById(R.id.pro_foofBrev);
+        progressBarHealthCare = view.findViewById(R.id.pro_healthCare);
+        progressBarUtility = view.findViewById(R.id.pro_utility);
+        progressBarOthers = view.findViewById(R.id.pro_other);
+        progressBarExpense = view.findViewById(R.id.pro_totalExpense);
+
+        valueOthers = view.findViewById(R.id.otherVale);
+        valueFood = view.findViewById(R.id.foodbevValue);
+        valuesHealthCare = view.findViewById(R.id.healthCareValue);
+        valueUtility = view.findViewById(R.id.utilityValue);
+        valueTotalexpense = view.findViewById(R.id.totalExpenseValue);
+        valueTotalIncome = view.findViewById(R.id.TF_totalIncome);
+
+        return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        dbRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                int totalIncome = 0;
+                int totalExpense = 0;
+                int foodbev = 0;
+                int utilities = 0;
+                int healthCare = 0;
+                int others = 0;
+                String type = null;
+                String categoryType = null;
+
+                for (DataSnapshot snap : snapshot.getChildren()) {
+                    Datacash datacash = snap.getValue(Datacash.class);
+
+                    type = datacash.getType();
+                    categoryType = datacash.getCategoryData();
+
+                    if (type.equals("income")) {
+                        totalIncome += datacash.getAmount();
+                    }
+                    if (type.equals("expense")) {
+                        totalExpense += datacash.getAmount();
+                    }
+
+                    if (categoryType.equals("Food & Beverages")) {
+                        foodbev += datacash.getAmount();
+                    }
+                    if (categoryType.equals("Utilities")) {
+                        utilities += datacash.getAmount();
+                    }
+                    if (categoryType.equals("Health Care")) {
+                        healthCare += datacash.getAmount();
+                    }
+                    if (categoryType.equals("Others")) {
+                        others += datacash.getAmount();
+                    }
+                }
+                System.out.println(foodbev);
+                System.out.println(totalExpense);
+
+                int foodPres = foodbev*100 / totalExpense;
+                int utilityPres = utilities*100 / totalExpense;
+                int healthPres = healthCare*100 / totalExpense;
+                int otherPres = others*100 / totalExpense;
+                int expensePres = totalExpense*100/totalIncome;
+
+                valueFood.setText(String.valueOf(foodPres) + "% | " + "LKR " + String.valueOf(foodbev) + ".00");
+                valueOthers.setText(String.valueOf(utilityPres)+"% | "+"LKR " + String.valueOf(others) + ".00");
+                valuesHealthCare.setText(String.valueOf(healthPres)+"% | "+"LKR" + String.valueOf(healthCare) + ".00");
+                valueUtility.setText(String.valueOf(otherPres)+"% | "+"LKR " + String.valueOf(utilities + ".00"));
+
+                valueTotalexpense.setText(String.valueOf(expensePres) + "% | " +"LKR " + String.valueOf(totalExpense) + ".00");
+                valueTotalIncome.setText("LKR " + String.valueOf(totalIncome) + ".00");
+
+                progressBarFood.setProgress(foodPres);
+                progressBarHealthCare.setProgress(healthPres);
+                progressBarOthers.setProgress(otherPres);
+                progressBarUtility.setProgress(utilityPres);
+                progressBarExpense.setProgress(expensePres);
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 }

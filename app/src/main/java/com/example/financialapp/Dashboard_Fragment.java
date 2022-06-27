@@ -1,5 +1,6 @@
 package com.example.financialapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -8,6 +9,7 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -23,6 +25,7 @@ public class Dashboard_Fragment extends Fragment {
 
     private ProgressBar progressBarFood, progressBarUtility, progressBarHealthCare, progressBarOthers, progressBarExpense;
     private TextView valueFood, valueUtility, valuesHealthCare, valueOthers, valueTotalexpense, valueTotalIncome;
+    private Button btn_setLimit;
 
     private FirebaseAuth mAuth;
     private DatabaseReference dbRef;
@@ -42,6 +45,8 @@ public class Dashboard_Fragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_dashboard_, container, false);
 
+        btn_setLimit = view.findViewById(R.id.btn_setLimit);
+
         progressBarFood = view.findViewById(R.id.pro_foofBrev);
         progressBarHealthCare = view.findViewById(R.id.pro_healthCare);
         progressBarUtility = view.findViewById(R.id.pro_utility);
@@ -54,6 +59,14 @@ public class Dashboard_Fragment extends Fragment {
         valueUtility = view.findViewById(R.id.utilityValue);
         valueTotalexpense = view.findViewById(R.id.totalExpenseValue);
         valueTotalIncome = view.findViewById(R.id.TF_totalIncome);
+
+        btn_setLimit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getActivity(), SetlimitActivity.class);
+                startActivity(i);
+            }
+        });
 
         return view;
     }

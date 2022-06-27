@@ -1,12 +1,17 @@
 package com.example.financialapp;
 
-public class SetBudget {
+public class BudgetLimit {
 
-    String category;
+    String category, id;
     int amount;
 
-    public SetBudget(String category, int amount) {
+    public BudgetLimit(){
+
+    }
+
+    public BudgetLimit(String category, int amount, String id) {
         this.category = category;
+        this.id = id;
         this.amount = amount;
     }
 
@@ -16,6 +21,14 @@ public class SetBudget {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public int getAmount() {

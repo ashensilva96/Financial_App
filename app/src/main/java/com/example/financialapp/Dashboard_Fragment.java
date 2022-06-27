@@ -28,7 +28,17 @@ public class Dashboard_Fragment extends Fragment {
     private Button btn_setLimit;
 
     private FirebaseAuth mAuth;
-    private DatabaseReference dbRef;
+    private DatabaseReference dbRef, budgetdbRef;
+
+    int foodbev = 0;
+    int utilities = 0;
+    int healthCare = 0;
+    int others = 0;
+
+    int foodCatAmount;
+    int otherCatAmount;
+    int utilityCatAmount;
+    int healthCatAmount;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -41,7 +51,7 @@ public class Dashboard_Fragment extends Fragment {
 
         mAuth = FirebaseAuth.getInstance();
         dbRef = FirebaseDatabase.getInstance().getReference().child("Cashdata").child(mAuth.getCurrentUser().getUid());
-
+        budgetdbRef = FirebaseDatabase.getInstance().getReference().child("BudgetLimit").child(mAuth.getCurrentUser().getUid());
 
         View view = inflater.inflate(R.layout.fragment_dashboard_, container, false);
 
@@ -80,10 +90,7 @@ public class Dashboard_Fragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 int totalIncome = 0;
                 int totalExpense = 0;
-                int foodbev = 0;
-                int utilities = 0;
-                int healthCare = 0;
-                int others = 0;
+
                 String type = null;
                 String categoryType = null;
 
@@ -113,21 +120,54 @@ public class Dashboard_Fragment extends Fragment {
                         others += datacash.getAmount();
                     }
                 }
-                System.out.println(foodbev);
-                System.out.println(totalExpense);
 
-                int foodPres = foodbev*100 / totalExpense;
-                int utilityPres = utilities*100 / totalExpense;
-                int healthPres = healthCare*100 / totalExpense;
-                int otherPres = others*100 / totalExpense;
-                int expensePres = totalExpense*100/totalIncome;
+                int foodPres = foodbev * 100 / totalExpense;
+                int utilityPres = utilities * 100 / totalExpense;
+                int healthPres = healthCare * 100 / totalExpense;
+                int otherPres = others * 100 / totalExpense;
+                int expensePres = totalExpense * 100 / totalIncome;
 
-                valueFood.setText(String.valueOf(foodPres) + "% | " + "LKR " + String.valueOf(foodbev) + ".00");
-                valueOthers.setText(String.valueOf(utilityPres)+"% | "+"LKR " + String.valueOf(others) + ".00");
-                valuesHealthCare.setText(String.valueOf(healthPres)+"% | "+"LKR" + String.valueOf(healthCare) + ".00");
-                valueUtility.setText(String.valueOf(otherPres)+"% | "+"LKR " + String.valueOf(utilities + ".00"));
+                budgetdbRef.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                valueTotalexpense.setText(String.valueOf(expensePres) + "% | " +"LKR " + String.valueOf(totalExpense) + ".00");
+                        String categoryType;
+
+                        int amountCategory;
+
+                        for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                            BudgetLimit budgetLimit = dataSnapshot.getValue(BudgetLimit.class);
+
+                            categoryType = budgetLimit.getCategory();
+
+                            if (categoryType.equals("food")) {
+                                foodCatAmount = budgetLimit.getAmount();
+                            }
+                            if (categoryType.equals("other")) {
+                                otherCatAmount = budgetLimit.getAmount();
+                            }
+                            if (categoryType.equals("health")) {
+                                healthCatAmount = budgetLimit.getAmount();
+                            }
+                            if (categoryType.equals("utility")) {
+                                utilityCatAmount = budgetLimit.getAmount();
+                            }
+                        }
+
+                        valueFood.setText(String.valueOf(foodPres) + "% | " + "LKR " + String.valueOf(foodbev) + ".00 | Limit - " + String.valueOf(foodCatAmount));
+                        valueOthers.setText(String.valueOf(otherPres) + "% | " + "LKR " + String.valueOf(others) + ".00 | Limit - " + String.valueOf(otherCatAmount));
+                        valuesHealthCare.setText(String.valueOf(healthPres) + "% | " + "LKR" + String.valueOf(healthCare) + ".00 | Limit - " + String.valueOf(healthCatAmount));
+                        valueUtility.setText(String.valueOf(utilityPres) + "% | " + "LKR " + String.valueOf(utilities) + ".00 | Limit - " + String.valueOf(utilityCatAmount));
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+
+
+                valueTotalexpense.setText(String.valueOf(expensePres) + "% | " + "LKR " + String.valueOf(totalExpense) + ".00");
                 valueTotalIncome.setText("LKR " + String.valueOf(totalIncome) + ".00");
 
                 progressBarFood.setProgress(foodPres);
